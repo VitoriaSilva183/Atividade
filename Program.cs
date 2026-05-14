@@ -1,286 +1,114 @@
 ﻿using System;
-namespace ViLanches;
-
-public class Produto
-{
-    //ATRIBUTOS
-    public int Id;
-    public string Nome;
-   
-    public string Observacao;
-
-     public double Preco;
-     
-   
-
-  
-
-    public Produto(int id, string nome, string observacao, double preco )
-    {
-        Id = id;
-        Nome = nome;
-        Preco = preco;
-        Observacao = observacao;
-        
-    }
-
-    public void ExibirProduto ()
-    {
-        Console.WriteLine("╔════════════════════════════════════════════════════════════════════════════════════╗");
-        Console.WriteLine($"  {Id} - {Nome}");
-        Console.WriteLine("╠════════════════════════════════════════════════════════════════════════════════════╣");
-        Console.WriteLine($"  📝 {Observacao}");
-        Console.WriteLine($"  💲 Valor: R$ {Preco:F2}");
-        Console.WriteLine("╚━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╝\n");
-        
-    }
-}
-
-public class Cliente
-{
-    public string Nome;
-    public string Endereco;
-    public string Telefone;
-
-    public Cliente(string nome, string endereco, string telefone)
-    {
-        Nome = nome;
-        Endereco = endereco;
-        Telefone = telefone;
-    }
-
-    public void ExibirCliente()
-    {
-        Console.WriteLine("╔══════════════════════════════╗");
-        Console.WriteLine($"  Nome: {Nome}");
-        Console.WriteLine($"  Endereço: {Endereco}");
-        Console.WriteLine($"  Telefone: {Telefone}");
-        Console.WriteLine("╚══════════════════════════════╝\n");
-    }
-}
-
-public class Pedido
-{
-    public Cliente ClientePedido;
-
-    //lista de produtos
-    public List<Produto> Produtos = new List<Produto>();
-
-    //Construtor
-    public Pedido(Cliente cliente)
-    {
-        ClientePedido = cliente;
-    }
-
-    public void AdicionarPoduto(Produto produto)
-    {
-        Produtos.Add(produto);
-    }
-
-    public double CalcularTotal()
-    {
-        double total = 0;
-        foreach (Produto p in Produtos)
-        {
-            total += p.Preco;
-        }
-        return total;
-    }
-
-    public void ExibrPedido()
-    {
-        Console.WriteLine("╔══════════════════════════════╗");
-        Console.WriteLine("║         PEDIDO               ║");
-        Console.WriteLine("╠══════════════════════════════╣");
-        Console.WriteLine($"  Cliente: {ClientePedido.Nome}");
-        Console.WriteLine( "      \n Itens:"                );
-        Console.WriteLine("╚══════════════════════════════╝\n");
-
-        foreach (Produto p in Produtos)
-        {
-            Console.WriteLine("--"+p.Nome+ "| R$" +p.Preco);
-
-        }
-
-        Console.WriteLine("\nTotal: R$ " + CalcularTotal());
-        Console.WriteLine("════════════════════════");
-
-    }
-}
-
-public class ConsultaPedido
-{
-    // LISTA COM TODOS OS PEDIDOS
-    public List<Pedido> TodosPedidos = new List<Pedido>();
-
-    // ADICIONAR PEDIDO
-    public void AdicionarPedido(Pedido pedido)
-    {
-        TodosPedidos.Add(pedido);
-    }
-
-    // CONSULTAR PEDIDO PELO NOME
-    public void ConsultarPorNome(string nomeCliente)
-    {
-        bool encontrou = false;
-
-        Console.WriteLine("\n╔══════════════════════════════╗");
-        Console.WriteLine("║      CONSULTA PEDIDOS        ║");
-        Console.WriteLine("╚══════════════════════════════╝\n");
-
-        foreach (Pedido p in TodosPedidos)
-        {
-            if (p.ClientePedido.Nome.ToLower() == nomeCliente.ToLower())
-            {
-                p.ExibrPedido();
-                encontrou = true;
-            }
-        }
-
-        if (encontrou == false)
-        {
-            Console.WriteLine(" Nenhum pedido encontrado.");
-        }
-    }
-}
+using System.Collections.Generic;
+using System.Security.Cryptography;
+using System.Text;
 
 class Program
 {
+    // 1. DADOS EM MEMÓRIA (Simplificamos usando variáveis globais)
+    static List<Usuario> usuarios = new List<Usuario>();
+    static List<string> historico = new List<string>(); // Histórico agora é apenas uma lista de textos
+
+    // 2. MODELO DE USUÁRIO ENXUTO
+    class Usuario
+    {
+        public string Nome;
+        public string SenhaHash;
+        public int Nivel; // 1 = Visitante, 2 = Funcionário, 3 = Admin
+    }
+
     static void Main()
     {
+        usuarios.Add(new Usuario{Nome = "Adminvitoria", SenhaHash = GerarHash("admin7559"), Nivel = 3});
 
-        // LISTA DE PRODUTOS
-        List<Produto> produtos = new List<Produto>();
-
-        produtos.Add(new Produto(1,"AÇAI SIMPLES", "500ml - Creme de açai, leite condensado, leite em pó", 18.00));
-        produtos.Add(new Produto(2,"AÇAI COM MORANGO", "500ML - Creme de açai, leite condensado, leite em pó, morango", 21.00));
-        produtos.Add(new Produto(3,"X-BURGUER" ,"Pão, carne bovina, queijo, alface, tomate", 20.00));
-        produtos.Add(new Produto(4,"X-BACON", "Pão, carne bovina, queijo, presunto, bacon, alface, tomate", 23.00));
-        produtos.Add(new Produto(5,"X-TUDO" , "Pão, carne bovina, ovo, queijo, presunto, bacon, alface, tomate, milho, batata", 28.00));
-        produtos.Add(new Produto(6,"REFRIGERANTE LATA 350ML", "COCA COLA - GUARANA - FANTA UVA - FANTA LARANJA", 4.99));
-        produtos.Add(new Produto(7,"REFRIGERANTE 1 LITRO", "GUARANA - COCA COLA - SUKITA LARANJA", 5.99));
-        produtos.Add(new Produto(8,"SOBREMESA", "BROWNIE", 5.00));
-
-        // CONSULTA
-        ConsultaPedido consulta = new ConsultaPedido();
-
-        int opcao = 0;
-
-        while (opcao != 3)
+        while (true)
         {
-           Console.Clear();
+            Console.WriteLine("\n--- CONTROLE DE ACESSO ---");
+            Console.WriteLine("Digite o usuario: ");
+            string usuario = Console.ReadLine();
+            Console.WriteLine("Digite a senha: ");
+            string senha = Console.ReadLine();
 
-            Console.WriteLine("╔══════════════════════════════╗");
-            Console.WriteLine("║🍟 BEM VIDO AO VI LANCHES 🍔 ║");
-            Console.WriteLine("╠══════════════════════════════╣");
-            Console.WriteLine("║ 1 - Fazer Pedido             ║");
-            Console.WriteLine("║ 2 - Consultar Pedidos        ║");
-            Console.WriteLine("║ 3 - Sair                     ║");
-            Console.WriteLine("╚══════════════════════════════╝");
-            Console.Write("\nEscolha uma opção: ");
-            opcao = int.Parse(Console.ReadLine());
-
-            switch (opcao)
+            string hashUsuario = GerarHash(senha);
+            Usuario logado = usuarios.Find(u => u.Nome == usuario && u.SenhaHash == hashUsuario);
+            if (logado == null)
             {
-                case 1:
+                Console.WriteLine("Login ou senha incorretos.");
+                continue;
+            }
 
-                    Console.Clear();
+            Console.WriteLine($"Bem vindo, {logado.Nome}! (Nivel: {logado.Nivel})");
+            Console.WriteLine("1- Acessar Area / 2- Cadastrar Usuario (Admin) / 3- Ver Historico (Admin) / 0- Sair");
+            Console.WriteLine("Escolha: ");
+            string opcao = Console.ReadLine();
 
-                    Console.WriteLine("╔══════════════════════════════╗");
-                    Console.WriteLine("║         CARDÁPIO             ║");
-                    Console.WriteLine("╚══════════════════════════════╝\n");
+            if (opcao == "0") break;
 
-                    foreach (Produto p in produtos)
-                    {
-                        p.ExibirProduto();
-                    }
-                    Console.WriteLine("Digite seu nome: ");
-                    string nome = Console.ReadLine();
+            if(opcao == "1")
+            {
+                Console.WriteLine("Qual area deseja acessar?(Recepçao / Cirurgia / Servidor):");
+                string area = Console.ReadLine();
+                bool liberado = false;
 
-                    Console.WriteLine("Digite seu endereço: ");
-                    string endereco = Console.ReadLine();
+                if (logado.Nivel == 3)
+                
+                    liberado = true; 
+                
+                else if(logado.Nivel == 2 && (area == "Recepcao" || area == "Cirurgia"))
+                
+                    liberado = true;
+                
+                else if(logado.Nivel == 1 && area == "Recepcao")
+                
+                    liberado = true;
 
-                    Console.WriteLine("Digite seu telefone: ");
-                    string telefone = Console.ReadLine();
+                string status = liberado ? "AUTORIZADO" : "NEGADO";
+                string registro =
+                $"Data: {DateTime.Now:dd/MM/yyyy} | " +
+                $"Hora: {DateTime.Now:HH:mm:ss} | " +
+                $"Usuario: {logado.Nome} | " +
+                $"Area: {area} | " +
+                $"Resultado: {status}";
 
-                    Cliente cliente = new Cliente(nome, endereco, telefone);
+                historico.Add(registro);
 
-                    Pedido pedido = new Pedido(cliente);
-
-                    int idProduto = 0;
-
-                    while (idProduto != 10)
-                    {
-                     Console.WriteLine("Digite o ID do produto que deseja adicionar ao pedido (ou 10 para finalizar): ");
-                     idProduto = int.Parse(Console.ReadLine());
-
-                     if(idProduto == 10)
-                     {
-                        break;
-                     }
-
-                     bool encontrou = false;
-
-                     foreach (Produto p in produtos)
-                        {
-                            if(p.Id == idProduto)
-                            {
-                                pedido.AdicionarPoduto(p);
-                                Console.WriteLine($"Produto {p.Nome} adicionado com sucesso.");
-                                encontrou = true;
-                            }
-                        }
-
-                        if (encontrou == false)
-                        {
-                            Console.WriteLine("Produto não encontrado. Tente novamente.");
-                        }
-                    }
-
-                    // SALVAR PEDIDO
-                    consulta.AdicionarPedido(pedido);
-
-                    Console.Clear();
-
-                    Console.WriteLine("PEDIDO FINALIZADO!\n");
-
-                    pedido.ExibrPedido();
-
-                    Console.WriteLine("\nPressione ENTER para voltar");
-                    Console.ReadLine();
-
-                    break;
-
-                case 2:
-
-                    Console.Clear();
-
-                    Console.WriteLine("Digite o nome do cliente:");
-
-                    string busca = Console.ReadLine();
-
-                    consulta.ConsultarPorNome(busca);
-
-                    Console.WriteLine("\nPressione ENTER para voltar");
-                    Console.ReadLine();
-
-                    break;
-
-                case 3:
-
-                    Console.WriteLine("\nSistema encerrado.");
-                    break;
-
-                default:
-
-                    Console.WriteLine("\n Opção inválida.");
-                    Console.ReadLine();
-
-                    break;
-
-
+                Console.WriteLine($"\nAcesso {status}");
 
             }
+            else if(opcao == "2" && logado.Nivel == 3)
+            {
+                Console.WriteLine("Novo Usuario: ");
+                string novoNome = Console.ReadLine();
+                Console.WriteLine("Nova Senha: ");
+                string novaSenha = Console.ReadLine();
+                Console.WriteLine("Nivel(1-Visitante, 2-Funcionario, 3-Admin):");
+                int nivel = int.Parse(Console.ReadLine());
+
+                usuarios.Add(new Usuario {Nome = novoNome, SenhaHash = GerarHash(novaSenha), Nivel = nivel});
+                Console.WriteLine("Usuario cadastro com sucesso!");
+
+            }
+            else if(opcao == "3" && logado.Nivel == 3)
+            {
+                Console.WriteLine("\n --- HISTORICO---");
+                foreach (string registro in historico)
+                {
+                    Console.WriteLine(registro);
+                }
+            }
+            else
+            {
+                Console.WriteLine("/nOpçao invalida ou você não tem permissão de Administrador.");
+            }
+        }
+    }
+    static string GerarHash(string senha)
+    {
+        using (SHA256 sha256 = SHA256.Create())
+        {
+            byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(senha));
+            return Convert.ToBase64String(bytes); // Convert.ToBase64String deixa o código bem mais curto
+
         }
     }
 }
